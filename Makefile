@@ -5,7 +5,7 @@ BUILD_DIR = /tmp/$(PACKAGE)-build
 RELEASE_DIR = /tmp/$(PACKAGE)-release
 RELEASE_FILE = /tmp/$(PACKAGE).tar.gz
 PATH_FLAGS = --prefix=/usr --infodir=/tmp/trash
-CONF_FLAGS = --enable-maintainer-mode
+CONF_FLAGS = --enable-maintainer-mode --enable-static --disable-padlock-support
 CFLAGS = -static -static-libgcc -Wl,-static -lc
 
 PACKAGE_VERSION = $$(git --git-dir=upstream/.git describe --tags | sed 's/libgcrypt-//')
@@ -18,17 +18,20 @@ LIBGPG-ERROR_TAR = /tmp/libgpgerror.tar.gz
 LIBGPG-ERROR_DIR = /tmp/libgpg-error
 LIBGPG-ERROR_PATH = -I$(LIBGPG-ERROR_DIR)/usr/include -L$(LIBGPG-ERROR_DIR)/usr/lib
 
-.PHONY : default submodule deps manual container deps build version push local
+.PHONY : default submodule build_container deps manual container deps build version push local
 
 default: submodule container
 
 submodule:
 	git submodule update --init
 
-manual: submodule
+build_container:
+	docker build -t libgcrypt-pkg meta
+
+manual: submodule build_container
 	./meta/launch /bin/bash || true
 
-container:
+container: build_container
 	./meta/launch
 
 deps:
