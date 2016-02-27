@@ -1,9 +1,9 @@
 item do
   expected do
     url_xpath
-    url 'http://git.gnupg.org/cgi-bin/gitweb.cgi?p=libgcrypt.git;a=tags'
-    xpath '/html/body/table/tr[1]/td[2]/a'
-    regex /^libgcrypt-([\d.]+)$/
+    url 'http://directory.fsf.org/wiki/Libgcrypt'
+    xpath '//*[@id="Overview"]/div[2]/p[2]/text()[1]'
+    regex /\Aversion ([\d.]+) \n\(stable\)\z/m
   end
 
   actual do
