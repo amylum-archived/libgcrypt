@@ -16,6 +16,7 @@ LIBGPG-ERROR_VERSION = 1.22-4
 LIBGPG-ERROR_URL = https://github.com/amylum/libgpg-error/releases/download/$(LIBGPG-ERROR_VERSION)/libgpg-error.tar.gz
 LIBGPG-ERROR_TAR = /tmp/libgpgerror.tar.gz
 LIBGPG-ERROR_DIR = /tmp/libgpg-error
+LIBGPG-ERROR_FLAGS = --with-gpg-error-prefix=$(LIBGPG-ERROR_DIR)/usr
 LIBGPG-ERROR_PATH = -I$(LIBGPG-ERROR_DIR)/usr/include -L$(LIBGPG-ERROR_DIR)/usr/lib
 
 .PHONY : default submodule build_container deps manual container deps build version push local
@@ -39,12 +40,13 @@ deps:
 	mkdir $(LIBGPG-ERROR_DIR)
 	curl -sLo $(LIBGPG-ERROR_TAR) $(LIBGPG-ERROR_URL)
 	tar -x -C $(LIBGPG-ERROR_DIR) -f $(LIBGPG-ERROR_TAR)
+	rm $(LIBGPG-ERROR_DIR)/usr/lib/libgpg-error.la
 
 build: submodule deps
 	rm -rf $(BUILD_DIR)
 	cp -R upstream $(BUILD_DIR)
 	cd $(BUILD_DIR) && ./autogen.sh
-	cd $(BUILD_DIR) && CC=musl-gcc CFLAGS='$(CFLAGS) $(LIBGPG-ERROR_PATH)' ./configure $(PATH_FLAGS) $(CONF_FLAGS)
+	cd $(BUILD_DIR) && CC=musl-gcc CFLAGS='$(CFLAGS) $(LIBGPG-ERROR_PATH)' ./configure $(PATH_FLAGS) $(CONF_FLAGS) $(LIBGPG-ERROR_FLAGS)
 	cd $(BUILD_DIR) && make DESTDIR=$(RELEASE_DIR) install
 	rm -rf $(RELEASE_DIR)/tmp
 	mkdir -p $(RELEASE_DIR)/usr/share/licenses/$(PACKAGE)
